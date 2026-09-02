@@ -1,0 +1,10 @@
+# Force LF on files that run on (or are parsed by) the Linux server.
+# Scoped to the self-host artifacts so this doesn't renormalise the rest
+# of the repo. A CRLF here would be a silent production break:
+#   - a \r in a .sh shebang makes the script un-runnable on Linux
+#   - a \r at the end of an env value (e.g. TUNNEL_TOKEN) corrupts the
+#     secret the container reads
+*.sh            text eol=lf
+Dockerfile      text eol=lf
+docker-compose.yml text eol=lf
+.env.example    text eol=lf
