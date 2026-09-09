@@ -22,5 +22,5 @@ export const NAV: NavItem[] = [
   { name: "Practicing Area", href: "/practicing-area" },
   { name: "Services", href: "/services" },
   { name: "Our Team", href: "/our-team" },
-  { name: "Contact", href: "/contact" },
+  { name: "Contact Us", href: "/contact" },
 ];

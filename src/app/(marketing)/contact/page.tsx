@@ -1,5 +1,6 @@
 import HeritageHero from "@/components/HeritageHero";
 import Reveal from "@/components/Reveal";
+import WhatsAppFab from "@/components/WhatsAppFab";
 import ContactForm from "./ContactForm";
 
 // NAMBIRAJ LAW DYNASTY — Contact. Navy masthead, then the office details on
@@ -113,6 +114,10 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* The floating WhatsApp shortcut lives on this page only — it used to
+          sit in the marketing layout and follow the visitor everywhere. */}
+      <WhatsAppFab />
     </>
   );
 }
