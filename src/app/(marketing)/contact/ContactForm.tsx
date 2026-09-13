@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { emailjsConfigured, sendEmailjs } from "@/lib/emailjs";
 
-// Inquiry form for the NAMBIRAJ contact page. Submits to /api/contact, which
-// mails the chambers server-side. If that server has no SMTP credentials yet
-// it answers `mailUnconfigured` and we fall back to composing a mailto: in the
+// Inquiry form for the NAMBIRAJ contact page. Sends through EmailJS from the
+// browser to the chambers inbox (see src/lib/emailjs.ts). If EmailJS isn't set
+// up yet, or the send fails, we fall back to composing a mailto: in the
 // visitor's own client, so an enquiry is never simply swallowed.
 const RECIPIENTS = ["nambirajlawdynasty@gmail.com"];
+const MAX_NAME = 120;
+const MAX_DESCRIPTION = 4000;
 
 const INQUIRY_TYPES = [
   "Civil Matter",
@@ -49,42 +52,54 @@ export default function ContactForm() {
     )}?subject=${subject}&body=${body}`;
   }
 
+  function reset() {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setType(INQUIRY_TYPES[0]);
+    setDescription("");
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status === "sending") return;
-    setStatus("sending");
     setError("");
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, type, description, company }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        mailUnconfigured?: boolean;
-      };
-
-      if (data.mailUnconfigured) {
-        openMailClient();
-        setStatus("idle");
-        return;
-      }
-      if (!res.ok) {
-        setError(data.error || "We couldn't send that just now.");
-        setStatus("idle");
-        return;
-      }
-
+    // Honeypot hit: look successful so the bot gets no signal, send nothing.
+    if (company) {
       setStatus("sent");
-      setName("");
-      setEmail("");
-      setPhone("");
-      setType(INQUIRY_TYPES[0]);
-      setDescription("");
-    } catch {
-      // Offline, or the request never landed — leave the visitor a way out.
+      reset();
+      return;
+    }
+    if (phone && phone.replace(/\D/g, "").length < 8) {
+      setError("That phone number doesn't look right.");
+      return;
+    }
+    if (!emailjsConfigured()) {
+      openMailClient();
+      return;
+    }
+
+    setStatus("sending");
+    try {
+      // Every key is available in the EmailJS template as {{key}}.
+      await sendEmailjs({
+        name: name.trim(),
+        email: email.trim(),
+        reply_to: email.trim(),
+        phone: phone.trim() || "—",
+        inquiry_type: type,
+        message: description.trim(),
+        title: `${type} — ${name.trim()}`,
+      });
+      setStatus("sent");
+      reset();
+    } catch (err) {
+      // Rejected, offline, or blocked — leave the visitor a way out.
+      console.error("[contact] EmailJS send failed:", err);
+      setError(
+        "We couldn't send that just now, so we've opened your email app with your enquiry filled in."
+      );
       openMailClient();
       setStatus("idle");
     }
@@ -106,6 +121,7 @@ export default function ContactForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          maxLength={MAX_NAME}
           className={field}
           placeholder="Your full name"
         />
@@ -171,6 +187,7 @@ export default function ContactForm() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          maxLength={MAX_DESCRIPTION}
           rows={5}
           className={`${field} resize-none`}
           placeholder="Tell us briefly about your matter…"

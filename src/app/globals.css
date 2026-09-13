@@ -377,3 +377,11 @@ body {
   background-color: rgba(255, 255, 255, 0.045);
 }
 
+
+/* Bar Council disclaimer gate. The overlay ships in the server HTML so it
+   paints with the first frame; the blocking script in the root layout stamps
+   this attribute before paint for visitors who already accepted, hiding the
+   gate instantly rather than after hydration. */
+html[data-disclaimer-ack="1"] [data-disclaimer-overlay] {
+  display: none !important;
+}

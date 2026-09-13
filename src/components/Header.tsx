@@ -43,8 +43,8 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Centre nav */}
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 md:flex lg:gap-8">
+        {/* Nav — right-aligned beside the wordmark on lg, centred from xl */}
+        <nav className="absolute right-10 hidden items-center gap-5 lg:flex xl:right-auto xl:left-1/2 xl:-translate-x-1/2 xl:gap-7">
           {NAV.map((item) =>
             item.children?.length ? (
               <NavDropdown
@@ -56,7 +56,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-[12.5px] uppercase tracking-[0.14em] transition-colors"
+                className="whitespace-nowrap text-[12.5px] uppercase tracking-[0.14em] transition-colors"
                 style={{
                   fontFamily: inter,
                   fontWeight: 500,

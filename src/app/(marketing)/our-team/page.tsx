@@ -2,13 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
-import HeritageHero from "@/components/HeritageHero";
+import HeritageHero, { type HeroPortrait } from "@/components/HeritageHero";
 import Reveal from "@/components/Reveal";
 
-// NAMBIRAJ LAW DYNASTY — Our Team. Navy masthead, then the bench as portrait
-// cards. Give a member a `photo` (a file in /public/team) and the tile shows the
-// headshot; leave it off and it falls back to the gold monogram on navy, so the
-// grid stays even while portraits are still being collected.
+// NAMBIRAJ LAW DYNASTY — Our Team. Navy masthead carrying the founder's
+// portrait, then the bench as portrait cards. Give a member a `photo` (a file in
+// /public/team) and the tile shows the headshot; leave it off and it falls back
+// to the gold monogram on navy, so the grid stays even while portraits are
+// still being collected.
 
 export const metadata = {
   title: "Our Team — Nambiraj Law Dynasty",
@@ -31,15 +32,14 @@ type Member = {
   photo?: string;
 };
 
+// The founder heads the page in the masthead rather than sitting in the grid.
+const FOUNDER: HeroPortrait = {
+  src: "/team/c-nambiraj.jpg",
+  name: "Mr. C. Nambiraj",
+  role: "Founder · Senior Advocate",
+};
+
 const TEAM: Member[] = [
-  {
-    initials: "CN",
-    name: "Mr. C. Nambiraj",
-    role: "Founder · Senior Advocate",
-    bio: "He was an intellectual legend who entered practice in 1969 and focused on the welfare of the under-privileged with absolute grace and humility.",
-    focus: [],
-    photo: "/team/c-nambiraj.jpg",
-  },
   {
     initials: "NS",
     name: "N. Sureka",
@@ -92,8 +92,8 @@ const TEAM: Member[] = [
     initials: "NB",
     name: "N. Balaji",
     role: "Junior Associate · Civil",
-    bio: "Assisting on all civil matters.",
-    focus: ["Civil"],
+    bio: "Civil, Criminal, Bail, Return of Property and Relaxation",
+    focus: ["Civil", "Criminal", "Bail", "Return of Property", "Relaxation"],
     photo: "/team/n-balaji.jpg",
   },
   {
@@ -145,6 +145,7 @@ export default function OurTeamPage() {
         eyebrow="The People"
         title="Our Team"
         lead="The advocates and counsel who carry the Nambiraj Law Dynasty forward — each a specialist, all held to the same standard of diligence and discretion."
+        portrait={FOUNDER}
       />
 
       <section

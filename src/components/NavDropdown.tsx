@@ -66,7 +66,7 @@ export default function NavDropdown({
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
         onFocus={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[12.5px] uppercase tracking-[0.14em] transition-colors"
+        className="flex items-center gap-1.5 whitespace-nowrap text-[12.5px] uppercase tracking-[0.14em] transition-colors"
         style={{
           fontFamily: inter,
           fontWeight: 500,

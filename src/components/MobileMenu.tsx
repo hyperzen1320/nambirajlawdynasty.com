@@ -9,7 +9,7 @@ import type { NavItem } from "@/lib/nav";
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-// Mobile navigation for the NAMBIRAJ company site. A hamburger (md:hidden)
+// Mobile navigation for the NAMBIRAJ company site. A hamburger (lg:hidden)
 // opens a full-screen sheet with the nav + Client Login. Esc closes, body
 // scroll locks while open, focus moves into the sheet, and it auto-closes if
 // the viewport grows to desktop.
@@ -48,7 +48,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
   };
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         ref={triggerRef}
         type="button"
@@ -71,7 +71,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
               aria-modal="true"
               aria-label="Site menu"
               tabIndex={-1}
-              className="fade-up-sm fixed inset-0 z-50 flex flex-col outline-none md:hidden"
+              className="fade-up-sm fixed inset-0 z-50 flex flex-col outline-none lg:hidden"
               style={{ backgroundColor: "var(--color-heritage-paper)" }}
             >
               <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-6 py-5">

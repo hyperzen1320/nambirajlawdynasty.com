@@ -12,6 +12,7 @@ import {
   Inter,
 } from "next/font/google";
 import "./globals.css";
+import DisclaimerGate from "@/components/DisclaimerGate";
 
 // Company site (NAMBIRAJ) — heritage pairing: a high-contrast display serif
 // over a clean grotesque, matching the reference exactly.
@@ -98,11 +99,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // suppressHydrationWarning: the pre-paint disclaimer script below stamps
+    // data-disclaimer-ack onto <html> before React hydrates. This silences the
+    // mismatch for this element's own attributes only, not its children.
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${fraunces.variable} ${newsreader.variable} ${jetbrainsMono.variable} ${plexSans.variable} ${plexMono.variable} ${crimsonPro.variable} ${manrope.variable} ${dmMono.variable} ${playfair.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <head>
+        {/*
+          Runs before first paint: a visitor who has already accepted the Bar
+          Council disclaimer gets the overlay hidden by CSS immediately, so it
+          never flashes while React hydrates. The gate itself is server-
+          rendered open, which keeps the reverse case (a first-time visitor
+          glimpsing the site behind it) from happening either.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('nld:disclaimer-accepted')==='1'){document.documentElement.setAttribute('data-disclaimer-ack','1')}}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className="min-h-full">
+        {children}
+        <DisclaimerGate />
+      </body>
     </html>
   );
 }
