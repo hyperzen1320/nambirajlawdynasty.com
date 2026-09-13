@@ -6,23 +6,27 @@ import { emailjsConfigured, sendEmailjs } from "@/lib/emailjs";
 // Inquiry form for the NAMBIRAJ contact page. Sends through EmailJS from the
 // browser to the chambers inbox (see src/lib/emailjs.ts). If EmailJS isn't set
 // up yet, or the send fails, we fall back to composing a mailto: in the
-// visitor's own client, so an enquiry is never simply swallowed.
-const RECIPIENTS = ["nambirajlawdynasty@gmail.com"];
+// visitor's own client, so an enquiry is never simply swallowed. The recipient,
+// inquiry types and wording come from the CMS via the contact page.
+const FALLBACK_RECIPIENT = "nambirajlawdynasty@gmail.com";
 const MAX_NAME = 120;
 const MAX_DESCRIPTION = 4000;
 
-const INQUIRY_TYPES = [
-  "Civil Matter",
-  "Criminal Matter",
-  "Property Dispute",
-  "Corporate Advisory",
-  "Family Law",
-  "Other",
-];
-
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-export default function ContactForm() {
+export default function ContactForm({
+  recipient,
+  inquiryTypes,
+  submitLabel,
+  successMessage,
+}: {
+  recipient: string;
+  inquiryTypes: string[];
+  submitLabel: string;
+  successMessage: string;
+}) {
+  const RECIPIENTS = [recipient || FALLBACK_RECIPIENT];
+  const INQUIRY_TYPES = inquiryTypes.length ? inquiryTypes : ["General enquiry"];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -82,8 +86,12 @@ export default function ContactForm() {
 
     setStatus("sending");
     try {
-      // Every key is available in the EmailJS template as {{key}}.
+      // Every key is available in the EmailJS template as {{key}}. user_name,
+      // user_email and message are the names EmailJS's own example form uses,
+      // so a template built from that example fills in; the rest are extras.
       await sendEmailjs({
+        user_name: name.trim(),
+        user_email: email.trim(),
         name: name.trim(),
         email: email.trim(),
         reply_to: email.trim(),
@@ -224,8 +232,8 @@ export default function ContactForm() {
               "color-mix(in oklch, var(--color-heritage-stone) 45%, white)",
           }}
         >
-          Thank you — your enquiry has reached the chambers. We&rsquo;ll be in
-          touch shortly.
+          {successMessage ||
+            "Thank you — your enquiry has reached the chambers. We’ll be in touch shortly."}
         </p>
       ) : null}
 
@@ -235,7 +243,7 @@ export default function ContactForm() {
         className="w-full px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         style={{ backgroundColor: "var(--color-heritage-navy)" }}
       >
-        {status === "sending" ? "Sending…" : "Submit Inquiry"}
+        {status === "sending" ? "Sending…" : submitLabel || "Submit Inquiry"}
       </button>
     </form>
   );

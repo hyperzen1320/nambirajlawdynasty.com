@@ -1,26 +1,11 @@
-// The public NAMBIRAJ company-site navigation — shared by the Header (a client
-// component) and the Footer (a server component). It must live in a plain,
-// non-"use client" module so both can import the real array without crossing
-// the client/server boundary (importing it from the client Header turned it
-// into a client-reference proxy and broke prerendering).
+// Navigation types for the public site. The menu itself is CMS content (the
+// "nav" list in Site settings, src/cms/documents.ts); the marketing layout
+// loads it once and hands it to the Header (a client component) and the
+// Footer (a server component) as props. Types only, so either side can import
+// this module without crossing the client/server boundary.
 
-export type NavChild = { name: string; href: string };
-export type NavItem = { name: string; href: string; children?: NavChild[] };
+import type { DocumentData } from "@/cms/documents";
 
-export const NAV: NavItem[] = [
-  { name: "Home", href: "/" },
-  {
-    name: "The Firm",
-    href: "/about",
-    // Both entries are sections of /about rather than separate pages, so the
-    // dropdown scrolls to them instead of splitting the page in two.
-    children: [
-      { name: "Firm History", href: "/about#firm-history" },
-      { name: "About Us", href: "/about#about-us" },
-    ],
-  },
-  { name: "Practicing Area", href: "/practicing-area" },
-  { name: "Services", href: "/services" },
-  { name: "Our Team", href: "/our-team" },
-  { name: "Contact Us", href: "/contact" },
-];
+export type NavItem = DocumentData<"site">["nav"][number];
+export type NavChild = NavItem["children"][number];
+export type Brand = DocumentData<"site">["brand"];

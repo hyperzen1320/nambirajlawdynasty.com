@@ -1,151 +1,45 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import HeritageHero, { type HeroPortrait } from "@/components/HeritageHero";
+import HeritageHero from "@/components/HeritageHero";
 import Reveal from "@/components/Reveal";
+import { getDocument } from "@/cms/content";
+import type { DocumentData } from "@/cms/documents";
+import { imageProps } from "@/cms/image";
 
 // NAMBIRAJ LAW DYNASTY — Our Team. Navy masthead carrying the founder's
-// portrait, then the bench as portrait cards. Give a member a `photo` (a file in
-// /public/team) and the tile shows the headshot; leave it off and it falls back
-// to the gold monogram on navy, so the grid stays even while portraits are
-// still being collected.
+// portrait, then the bench as portrait cards. Members, their order and their
+// photos come from the "Our Team page" CMS document. A member with a photo
+// shows the headshot; without one the tile falls back to the gold monogram on
+// navy, so the grid stays even while portraits are still being collected.
 
-export const metadata = {
-  title: "Our Team — Nambiraj Law Dynasty",
-  description:
-    "The advocates and counsel who carry the Nambiraj Law Dynasty forward — specialists across litigation, corporate, property and advisory practice.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getDocument("team");
+  return { title: seo.title, description: seo.description };
+}
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-type Member = {
-  initials: string;
-  name: string;
-  /** Optional — omitted until the designation is confirmed. */
-  role?: string;
-  /** Optional — the card closes up neatly when there is no copy yet. */
-  bio?: string;
-  focus: string[];
-  /** Path under /public, e.g. "/team/n-sureka.jpg". Omit for the monogram. */
-  photo?: string;
-};
+type Member = DocumentData<"team">["members"][number];
 
-// The founder heads the page in the masthead rather than sitting in the grid.
-const FOUNDER: HeroPortrait = {
-  src: "/team/c-nambiraj.jpg",
-  name: "Mr. C. Nambiraj",
-  role: "Founder · Senior Advocate",
-};
+export default async function OurTeamPage() {
+  const { hero, founder, members, cta } = await getDocument("team");
+  const founderPhoto = portrait(founder.photo);
 
-const TEAM: Member[] = [
-  {
-    initials: "NS",
-    name: "N. Sureka",
-    role: "Partner · Senior Advocate",
-    bio: "Successor to the dynasty's founder. Trial and appellate advocacy across civil, commercial and family matters, with a record of hard-fought, thoroughly prepared cases.",
-    focus: ["Litigation", "Family"],
-    photo: "/team/n-sureka.jpg",
-  },
-  {
-    initials: "NG",
-    name: "Nagendhran. S",
-    role: "Managing Partner · Administration",
-    bio: "The visionary behind the Nambiraj Law Dynasty platform, committed to blending law, technology and professional excellence. Inspired by the legacy of Senior Advocate C. Nambiraj.",
-    focus: ["Administration", "Technology"],
-    photo: "/team/nagendhran-s.jpg",
-  },
-  {
-    initials: "LP",
-    name: "L. Pachappan",
-    role: "Senior Associate · Criminal Defence",
-    bio: "Disciple of C. Nambiraj. Defence strategy and bail-to-trial representation, with a steady focus on protecting constitutional rights.",
-    focus: ["Criminal", "Bail"],
-    photo: "/team/l-pachappan.jpg",
-  },
-  {
-    initials: "SB",
-    name: "Sanjay Balamurugaen",
-    role: "Associate Advocate · Real Estate",
-    bio: "Handling civil matters and real estate — end-to-end property disputes.",
-    focus: ["Real Estate", "Civil"],
-    photo: "/team/sanjay-balamurugaen.jpg",
-  },
-  {
-    initials: "SA",
-    name: "Syed Safeer Ahmed",
-    role: "Senior Advocate Clerk",
-    bio: "Handling all clerical work for the chambers.",
-    focus: ["Clerical"],
-    photo: "/team/syed-safeer-ahmed.jpg",
-  },
-  {
-    initials: "GP",
-    name: "G. Pradeepa",
-    role: "Junior Associate · Criminal",
-    bio: "Assisting on criminal matters from bail to trial.",
-    focus: ["Criminal", "Trial"],
-    photo: "/team/g-pradeepa.jpg",
-  },
-  {
-    initials: "NB",
-    name: "N. Balaji",
-    role: "Junior Associate · Civil",
-    bio: "Civil, Criminal, Bail, Return of Property and Relaxation",
-    focus: ["Civil", "Criminal", "Bail", "Return of Property", "Relaxation"],
-    photo: "/team/n-balaji.jpg",
-  },
-  {
-    initials: "TS",
-    name: "S. Tharani Shree",
-    role: "Junior Advocate · Civil",
-    focus: ["Civil"],
-    photo: "/team/s-tharani-shree.jpg",
-  },
-  {
-    initials: "SS",
-    name: "S. Saranya",
-    role: "Junior Advocate · Civil",
-    focus: ["Civil"],
-    photo: "/team/s-saranya.jpg",
-  },
-  {
-    initials: "KK",
-    name: "K. Kalaimathi",
-    role: "Junior Advocate · Family",
-    focus: ["Family"],
-    photo: "/team/k-kalaimathi.jpg",
-  },
-  {
-    initials: "AB",
-    name: "S. Abinaya",
-    role: "Junior Advocate · Civil & Criminal",
-    focus: ["Civil", "Criminal"],
-    photo: "/team/s-abinaya.jpg",
-  },
-  {
-    initials: "AK",
-    name: "A. Kannadhasan",
-    focus: [],
-    photo: "/team/a-kannadhasan.jpg",
-  },
-  {
-    initials: "CA",
-    name: "V. Cecilia Abigail",
-    focus: [],
-    photo: "/team/v-cecilia-abigail.jpg",
-  },
-];
-
-export default function OurTeamPage() {
   return (
     <>
       <HeritageHero
-        eyebrow="The People"
-        title="Our Team"
-        lead="The advocates and counsel who carry the Nambiraj Law Dynasty forward — each a specialist, all held to the same standard of diligence and discretion."
-        portrait={FOUNDER}
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
+        portrait={
+          founderPhoto
+            ? { src: founderPhoto, name: founder.name, role: founder.role }
+            : undefined
+        }
       />
 
       <section
@@ -156,8 +50,8 @@ export default function OurTeamPage() {
       >
         <div className="mx-auto max-w-[1320px] px-6 py-16 md:px-10 md:py-24">
           <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {TEAM.map((m, i) => (
-              <Reveal key={m.name} delay={(i % 3) * 0.06} className="h-full">
+            {members.map((m, i) => (
+              <Reveal key={`${m.name}-${i}`} delay={(i % 3) * 0.06} className="h-full">
                 <TeamCard member={m} />
               </Reveal>
             ))}
@@ -166,66 +60,79 @@ export default function OurTeamPage() {
       </section>
 
       {/* Closing CTA */}
-      <section
-        className="border-t"
-        style={{
-          borderColor: "var(--color-heritage-border)",
-          backgroundColor:
-            "color-mix(in oklch, var(--color-heritage-stone) 35%, white)",
-        }}
-      >
-        <div className="mx-auto max-w-[1320px] px-6 py-16 md:px-10 md:py-24">
-          <Reveal>
-            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h2
-                  className="text-[30px] tracking-[-0.01em] md:text-[40px]"
-                  style={{
-                    fontFamily: playfair,
-                    color: "var(--color-heritage-navy)",
-                  }}
-                >
-                  Work with our bench.
-                </h2>
-                <p
-                  className="mt-3 max-w-xl text-[16px] leading-7"
-                  style={{
-                    fontFamily: inter,
-                    color: "var(--color-heritage-muted)",
-                  }}
-                >
-                  Tell us about your matter and we&rsquo;ll route it to the right
-                  counsel within the firm.
-                </p>
+      {cta.heading ? (
+        <section
+          className="border-t"
+          style={{
+            borderColor: "var(--color-heritage-border)",
+            backgroundColor:
+              "color-mix(in oklch, var(--color-heritage-stone) 35%, white)",
+          }}
+        >
+          <div className="mx-auto max-w-[1320px] px-6 py-16 md:px-10 md:py-24">
+            <Reveal>
+              <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2
+                    className="text-[30px] tracking-[-0.01em] md:text-[40px]"
+                    style={{
+                      fontFamily: playfair,
+                      color: "var(--color-heritage-navy)",
+                    }}
+                  >
+                    {cta.heading}
+                  </h2>
+                  {cta.body ? (
+                    <p
+                      className="mt-3 max-w-xl text-[16px] leading-7"
+                      style={{
+                        fontFamily: inter,
+                        color: "var(--color-heritage-muted)",
+                      }}
+                    >
+                      {cta.body}
+                    </p>
+                  ) : null}
+                </div>
+                {cta.buttonLabel ? (
+                  <Link
+                    href="/contact"
+                    className="shrink-0 px-8 py-4 text-[12px] uppercase tracking-[0.18em] transition-opacity hover:opacity-90"
+                    style={{
+                      fontFamily: inter,
+                      fontWeight: 600,
+                      backgroundColor: "var(--color-heritage-navy)",
+                      color: "#ffffff",
+                    }}
+                  >
+                    {cta.buttonLabel}
+                  </Link>
+                ) : null}
               </div>
-              <Link
-                href="/contact"
-                className="shrink-0 px-8 py-4 text-[12px] uppercase tracking-[0.18em] transition-opacity hover:opacity-90"
-                style={{
-                  fontFamily: inter,
-                  fontWeight: 600,
-                  backgroundColor: "var(--color-heritage-navy)",
-                  color: "#ffffff",
-                }}
-              >
-                Request a Consultation
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }
 
-// Portraits are dropped into /public/team by the chambers, so a card must not
-// break on a file that has not landed yet — an unresolved path falls back to
-// the monogram. Server-rendered, so this reflects the folder as it stands.
-function portrait(photo: string | undefined) {
+// A photo is either an upload (a Supabase Storage URL) or a file dropped into
+// /public/team. A local path whose file hasn't landed yet falls back to the
+// monogram rather than a broken image. Server-rendered, so this reflects the
+// folder as it stands.
+function portrait(photo: string) {
   if (!photo) return undefined;
+  if (!photo.startsWith("/")) return photo;
   return fs.existsSync(path.join(process.cwd(), "public", photo))
     ? photo
     : undefined;
+}
+
+function initialsOf(member: Member) {
+  if (member.initials.trim()) return member.initials.trim().slice(0, 3);
+  const words = member.name.replace(/[^\p{L}\s]/gu, " ").split(/\s+/).filter((w) => w.length > 1);
+  return words.slice(0, 2).map((w) => w[0].toUpperCase()).join("");
 }
 
 function TeamCard({ member }: { member: Member }) {
@@ -243,7 +150,7 @@ function TeamCard({ member }: { member: Member }) {
       >
         {photo ? (
           <Image
-            src={photo}
+            {...imageProps(photo)}
             alt={member.name}
             fill
             sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
@@ -284,7 +191,7 @@ function TeamCard({ member }: { member: Member }) {
               className="text-[58px] tracking-[0.06em] transition-transform duration-300 group-hover:scale-105"
               style={{ fontFamily: playfair, color: "var(--color-heritage-gold)" }}
             >
-              {member.initials}
+              {initialsOf(member)}
             </span>
           </div>
         )}
@@ -321,9 +228,9 @@ function TeamCard({ member }: { member: Member }) {
           </p>
         ) : null}
         <div className="mt-auto flex flex-wrap gap-2 pt-5">
-          {member.focus.map((f) => (
+          {member.focus.map((f, i) => (
             <span
-              key={f}
+              key={`${f}-${i}`}
               className="border px-2.5 py-1 text-[10px] uppercase tracking-[0.14em]"
               style={{
                 fontFamily: inter,

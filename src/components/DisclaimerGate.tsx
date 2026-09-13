@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { BRAND_NAME } from "@/lib/brand";
+import type { DocumentData } from "@/cms/documents";
 
 // Bar Council of India gate. Indian advocates may not solicit work or
 // advertise, so the site opens behind a confirmation that the visitor came
 // here of their own accord. Accepting is remembered forever on the device;
-// declining sends the visitor off the site entirely.
+// declining sends the visitor off the site entirely. All wording comes from
+// the "Disclaimer popup" document in the CMS.
 //
 // The overlay is deliberately rendered in the server HTML (initial state is
 // "open") so it paints with the first frame — no flash of the site beneath
@@ -15,7 +16,7 @@ import { BRAND_NAME } from "@/lib/brand";
 // layout: it stamps html[data-disclaimer-ack] before paint, and globals.css
 // hides the overlay on that attribute.
 export const ACK_KEY = "nld:disclaimer-accepted";
-const DECLINE_URL = "https://www.google.com";
+const FALLBACK_DECLINE_URL = "https://www.google.com";
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
@@ -38,10 +39,10 @@ function hasAccepted() {
   }
 }
 
-export default function DisclaimerGate() {
+export default function DisclaimerGate({ content }: { content: DocumentData<"disclaimer"> }) {
   const accepted = useSyncExternalStore(subscribe, hasAccepted, () => false);
   const [dismissed, setDismissed] = useState(false);
-  const open = !accepted && !dismissed;
+  const open = content.enabled && !accepted && !dismissed;
 
   // Hold the page still underneath while the gate is up.
   useEffect(() => {
@@ -66,8 +67,10 @@ export default function DisclaimerGate() {
   };
 
   const decline = () => {
-    window.location.replace(DECLINE_URL);
+    window.location.replace(content.declineUrl || FALLBACK_DECLINE_URL);
   };
+
+  const body = "text-[13.5px] leading-[1.75]";
 
   return (
     <div
@@ -99,94 +102,40 @@ export default function DisclaimerGate() {
             className="text-[20px] font-bold tracking-[0.18em] sm:text-[22px]"
             style={{ fontFamily: playfair }}
           >
-            DISCLAIMER
+            {content.title}
           </h2>
 
-          <p className="mt-4 text-[13.5px] leading-[1.75]">
-            The rules of the Bar Council of India prohibit law firms from
-            soliciting work or advertising in any manner. By clicking on
-            &lsquo;I AGREE&rsquo;, the user acknowledges that:
-          </p>
+          {content.intro ? <p className={`mt-4 ${body}`}>{content.intro}</p> : null}
+          <Bullets items={content.bullets} className={body} />
+          {content.closing ? <p className={`mt-4 ${body}`}>{content.closing}</p> : null}
 
-          <ul className="mt-3 space-y-2.5 text-[13.5px] leading-[1.75]">
-            <Bullet>
-              The user wishes to gain more information about {BRAND_NAME}, its
-              practice areas and its attorneys, for his/her own information and
-              use;
-            </Bullet>
-            <Bullet>
-              The information is made available/provided to the user only on
-              his/her specific request and any information obtained or material
-              downloaded from this website is completely at the user&rsquo;s
-              volition and any transmission, receipt or use of this site is not
-              intended to, and will not, create any lawyer-client relationship;
-              and
-            </Bullet>
-            <Bullet>
-              None of the information contained on the website is in the nature
-              of a legal opinion or otherwise amounts to any legal advice.
-            </Bullet>
-          </ul>
+          {content.heading2 ? (
+            <>
+              <h3
+                className="mt-8 text-[17px] font-bold tracking-[0.06em] sm:text-[18px]"
+                style={{ fontFamily: playfair }}
+              >
+                {content.heading2}
+              </h3>
+              <hr
+                className="mt-3 border-0 border-t"
+                style={{ borderColor: "var(--color-heritage-border)" }}
+              />
+            </>
+          ) : null}
 
-          <p className="mt-4 text-[13.5px] leading-[1.75]">
-            {BRAND_NAME} is not liable for any consequence of any action taken
-            by the user relying on material/information provided under this
-            website. In cases where the user has any legal issues, he/she in all
-            cases must seek independent legal advice.
-          </p>
+          {content.intro2 ? <p className={`mt-4 ${body}`}>{content.intro2}</p> : null}
+          <Bullets items={content.bullets2} className={body} />
+          {content.closing2 ? <p className={`mt-4 ${body}`}>{content.closing2}</p> : null}
 
-          <h3
-            className="mt-8 text-[17px] font-bold tracking-[0.06em] sm:text-[18px]"
-            style={{ fontFamily: playfair }}
-          >
-            Disclaimer &amp; Confirmation
-          </h3>
-          <hr
-            className="mt-3 border-0 border-t"
-            style={{ borderColor: "var(--color-heritage-border)" }}
-          />
-
-          <p className="mt-4 text-[13.5px] leading-[1.75]">
-            As per the rules of the Bar Council of India, we are not permitted
-            to solicit work and advertise. By clicking on the &ldquo;I
-            AGREE&rdquo; button below, you acknowledge the following:
-          </p>
-
-          <ul className="mt-3 space-y-2.5 text-[13.5px] leading-[1.75]">
-            <Bullet>
-              there has been no advertisement, personal communication,
-              solicitation, invitation or inducement of any sort whatsoever from
-              us or any of our members to solicit any work through this website;
-            </Bullet>
-            <Bullet>
-              you wish to gain more information about us for your own
-              information and use;
-            </Bullet>
-            <Bullet>
-              the information about us is provided to you on your specific
-              request and any information obtained or materials downloaded from
-              this website is completely at your own volition and any
-              transmission, receipt or use of this site does not create any
-              lawyer-client relationship; and that
-            </Bullet>
-            <Bullet>
-              we are not liable for any consequence of any action taken by you
-              relying on the material / information provided on this website.
-            </Bullet>
-          </ul>
-
-          <p className="mt-4 text-[13.5px] leading-[1.75]">
-            If you have any legal issues, you, in all cases, must seek
-            independent legal advice.
-          </p>
-
-          <p
-            className="mt-4 text-[12.5px] leading-[1.7]"
-            style={{ color: "var(--color-heritage-muted)" }}
-          >
-            We use cookies to enhance your experience. By continuing to visit
-            this website you agree to our use of cookies.
-          </p>
+          {content.cookieNote ? (
+            <p
+              className="mt-4 text-[12.5px] leading-[1.7]"
+              style={{ color: "var(--color-heritage-muted)" }}
+            >
+              {content.cookieNote}
+            </p>
+          ) : null}
         </div>
 
         {/* Actions */}
@@ -207,7 +156,7 @@ export default function DisclaimerGate() {
               fontWeight: 500,
             }}
           >
-            I Disagree
+            {content.disagreeLabel || "I Disagree"}
           </button>
           <button
             type="button"
@@ -220,7 +169,7 @@ export default function DisclaimerGate() {
               fontWeight: 600,
             }}
           >
-            I Agree
+            {content.agreeLabel || "I Agree"}
           </button>
         </div>
       </div>
@@ -228,15 +177,20 @@ export default function DisclaimerGate() {
   );
 }
 
-function Bullet({ children }: { children: React.ReactNode }) {
+function Bullets({ items, className }: { items: string[]; className: string }) {
+  if (!items.length) return null;
   return (
-    <li className="flex gap-3">
-      <span
-        aria-hidden
-        className="mt-[9px] h-[5px] w-[5px] shrink-0 rounded-full"
-        style={{ backgroundColor: "var(--color-heritage-gold-deep)" }}
-      />
-      <span>{children}</span>
-    </li>
+    <ul className={`mt-3 space-y-2.5 ${className}`}>
+      {items.map((text, i) => (
+        <li key={i} className="flex gap-3">
+          <span
+            aria-hidden
+            className="mt-[9px] h-[5px] w-[5px] shrink-0 rounded-full"
+            style={{ backgroundColor: "var(--color-heritage-gold-deep)" }}
+          />
+          <span>{text}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

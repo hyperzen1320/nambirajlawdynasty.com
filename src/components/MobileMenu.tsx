@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "./Logo";
-import type { NavItem } from "@/lib/nav";
+import type { Brand, NavItem } from "@/lib/nav";
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
@@ -13,7 +13,7 @@ const inter = "var(--font-inter), system-ui, sans-serif";
 // opens a full-screen sheet with the nav + Client Login. Esc closes, body
 // scroll locks while open, focus moves into the sheet, and it auto-closes if
 // the viewport grows to desktop.
-export default function MobileMenu({ nav }: { nav: NavItem[] }) {
+export default function MobileMenu({ nav, brand }: { nav: NavItem[]; brand: Brand }) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -76,19 +76,19 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
             >
               <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-6 py-5">
                 <Link href="/" onClick={close} className="flex items-center gap-3 leading-none">
-                  <Logo size={40} className="shrink-0" />
+                  <Logo src={brand.logo} size={40} className="shrink-0" />
                   <span>
                     <span
                       className="block text-[22px] font-bold tracking-[0.06em]"
                       style={{ fontFamily: playfair, color: "var(--color-heritage-navy)" }}
                     >
-                      NAMBIRAJ
+                      {brand.name}
                     </span>
                     <span
                       className="mt-1 block text-[10px] tracking-[0.32em]"
                       style={{ fontFamily: inter, color: "var(--color-heritage-muted)" }}
                     >
-                      LAW DYNASTY
+                      {brand.tagline}
                     </span>
                   </span>
                 </Link>
@@ -107,7 +107,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
                 <div style={{ borderTop: "1px solid var(--color-heritage-border)" }}>
                   {nav.map((item) => (
                     <div
-                      key={item.name}
+                      key={item.label}
                       style={{
                         borderBottom: "1px solid var(--color-heritage-border)",
                       }}
@@ -122,7 +122,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
                           paddingBottom: item.children?.length ? "0.5rem" : undefined,
                         }}
                       >
-                        {item.name}
+                        {item.label}
                       </Link>
                       {/* Sub-pages sit inline rather than behind an accordion —
                           there are only two, and a tap fewer is worth more than
@@ -131,7 +131,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
                         <div className="pb-4 pl-4">
                           {item.children.map((child) => (
                             <Link
-                              key={child.name}
+                              key={child.label}
                               href={child.href}
                               onClick={close}
                               className="block py-2 text-[14px] uppercase tracking-[0.14em] transition-colors"
@@ -141,7 +141,7 @@ export default function MobileMenu({ nav }: { nav: NavItem[] }) {
                                 color: "var(--color-heritage-muted)",
                               }}
                             >
-                              {child.name}
+                              {child.label}
                             </Link>
                           ))}
                         </div>

@@ -1,28 +1,33 @@
+import type { Metadata } from "next";
 import HeritageHero from "@/components/HeritageHero";
 import Reveal from "@/components/Reveal";
-import WhatsAppFab from "@/components/WhatsAppFab";
+import WhatsAppFab, { whatsappHref } from "@/components/WhatsAppFab";
+import { getDocument } from "@/cms/content";
 import ContactForm from "./ContactForm";
 
 // NAMBIRAJ LAW DYNASTY — Contact. Navy masthead, then the office details on
-// the left and the inquiry form on the right, on the heritage palette.
+// the left and the inquiry form on the right, on the heritage palette. Page
+// wording comes from the "Contact page" CMS document; the address, phones,
+// email and WhatsApp number from Site settings, so the footer and this page
+// can never disagree.
 
-export const metadata = {
-  title: "Contact Us — Nambiraj Law Dynasty",
-  description:
-    "Reach Nambiraj Law Dynasty in Krishnagiri — office address, phone, email and WhatsApp, or send an inquiry.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getDocument("contact");
+  return { title: seo.title, description: seo.description };
+}
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-const WHATSAPP_HREF =
-  "https://wa.me/916369504141?text=" +
-  encodeURIComponent("Hello, I would like to inquire about your legal services.");
+export default async function ContactPage() {
+  const [page, site] = await Promise.all([getDocument("contact"), getDocument("site")]);
+  const { contact } = site;
+  const addressLines = contact.address.split("\n").map((l) => l.trim()).filter(Boolean);
+  const hasWhatsapp = Boolean(contact.whatsappNumber.replace(/\D/g, ""));
 
-export default function ContactPage() {
   return (
     <>
-      <HeritageHero eyebrow="Get in Touch" title="Contact Us" />
+      <HeritageHero eyebrow={page.hero.eyebrow} title={page.hero.title} lead={page.hero.lead} />
 
       <section
         style={{
@@ -42,57 +47,64 @@ export default function ContactPage() {
                     color: "var(--color-heritage-navy)",
                   }}
                 >
-                  Office
+                  {page.officeHeading}
                 </h2>
 
                 <dl className="mt-10 space-y-8">
-                  <Detail label="Address">
-                    Nambiraj Law Dynasty LLP.,
-                    <br />
-                    H-14, T.N.H.B. Colony, 2nd Phase,
-                    <br />
-                    Krishnagiri - 635 002
-                  </Detail>
+                  {addressLines.length ? (
+                    <Detail label="Address">
+                      {addressLines.map((line, i) => (
+                        <span key={i}>
+                          {i > 0 ? <br /> : null}
+                          {line}
+                        </span>
+                      ))}
+                    </Detail>
+                  ) : null}
 
-                  <Detail label="Email">
-                    <a
-                      href="mailto:nambirajlawdynasty@gmail.com"
-                      className="transition-colors hover:text-[var(--color-heritage-gold-deep)]"
-                    >
-                      nambirajlawdynasty@gmail.com
-                    </a>
-                  </Detail>
+                  {contact.email ? (
+                    <Detail label="Email">
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="transition-colors hover:text-[var(--color-heritage-gold-deep)]"
+                      >
+                        {contact.email}
+                      </a>
+                    </Detail>
+                  ) : null}
 
-                  <Detail label="Phone">
-                    <a
-                      href="tel:+916369504141"
-                      className="transition-colors hover:text-[var(--color-heritage-gold-deep)]"
-                    >
-                      +91 63695 04141
-                    </a>
-                    <br />
-                    <a
-                      href="tel:+914343225164"
-                      className="transition-colors hover:text-[var(--color-heritage-gold-deep)]"
-                    >
-                      04343 225164
-                    </a>
-                  </Detail>
+                  {contact.phones.length ? (
+                    <Detail label="Phone">
+                      {contact.phones.map((p, i) => (
+                        <span key={`${p.display}-${i}`}>
+                          {i > 0 ? <br /> : null}
+                          <a
+                            href={`tel:${(p.number || p.display).replace(/[^\d+]/g, "")}`}
+                            className="transition-colors hover:text-[var(--color-heritage-gold-deep)]"
+                          >
+                            {p.display || p.number}
+                          </a>
+                        </span>
+                      ))}
+                    </Detail>
+                  ) : null}
 
-                  <Detail label="WhatsApp">
-                    <a
-                      href={WHATSAPP_HREF}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
-                      style={{ color: "#1f9d55" }}
-                    >
-                      Chat with us on WhatsApp
-                      <span aria-hidden>→</span>
-                    </a>
-                  </Detail>
+                  {hasWhatsapp ? (
+                    <Detail label="WhatsApp">
+                      <a
+                        href={whatsappHref(contact.whatsappNumber, contact.whatsappMessage)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-80"
+                        style={{ color: "#1f9d55" }}
+                      >
+                        {page.whatsappLinkLabel || "Chat with us on WhatsApp"}
+                        <span aria-hidden>→</span>
+                      </a>
+                    </Detail>
+                  ) : null}
 
-                  <Detail label="Hours">Mon — Sat · 9 AM to 6 PM</Detail>
+                  {contact.hours ? <Detail label="Hours">{contact.hours}</Detail> : null}
                 </dl>
               </Reveal>
             </div>
@@ -107,7 +119,12 @@ export default function ContactPage() {
                     boxShadow: "0 30px 60px -40px rgba(10,16,28,0.4)",
                   }}
                 >
-                  <ContactForm />
+                  <ContactForm
+                    recipient={contact.email}
+                    inquiryTypes={page.form.inquiryTypes}
+                    submitLabel={page.form.submitLabel}
+                    successMessage={page.form.successMessage}
+                  />
                 </div>
               </Reveal>
             </div>
@@ -117,7 +134,9 @@ export default function ContactPage() {
 
       {/* The floating WhatsApp shortcut lives on this page only — it used to
           sit in the marketing layout and follow the visitor everywhere. */}
-      <WhatsAppFab />
+      {page.showWhatsappButton ? (
+        <WhatsAppFab number={contact.whatsappNumber} message={contact.whatsappMessage} />
+      ) : null}
     </>
   );
 }

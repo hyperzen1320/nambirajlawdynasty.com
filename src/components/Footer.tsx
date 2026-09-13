@@ -1,37 +1,30 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import Logo from "./Logo";
-import { NAV } from "@/lib/nav";
+import type { DocumentData } from "@/cms/documents";
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-const OFFICE = [
-  "Nambiraj Law Dynasty LLP.,",
-  "H-14, T.N.H.B. Colony, 2nd Phase,",
-  "Krishnagiri - 635 002",
-  "+91 63695 04141 · 04343 225164",
-  "nambirajlawdynasty@gmail.com",
-];
+const SOCIAL_ICONS: Record<string, { name: string; icon: ReactNode }> = {
+  instagram: { name: "Instagram", icon: <InstagramIcon /> },
+  facebook: { name: "Facebook", icon: <FacebookIcon /> },
+  linkedin: { name: "LinkedIn", icon: <LinkedInIcon /> },
+  youtube: { name: "YouTube", icon: <YouTubeIcon /> },
+  x: { name: "X", icon: <XIcon /> },
+};
 
-const SOCIAL = [
-  {
-    name: "Instagram",
-    href: "https://www.instagram.com/nambirajlawdynasty",
-    icon: <InstagramIcon />,
-  },
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/share/1KD26bRhzb/",
-    icon: <FacebookIcon />,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/in/nambiraj-law-dynasty-8251a0417",
-    icon: <LinkedInIcon />,
-  },
-];
+export default function Footer({ site }: { site: DocumentData<"site"> }) {
+  const { brand, nav, contact, social, footer } = site;
 
-export default function Footer() {
+  // The office column reads top-to-bottom like a letterhead: address lines,
+  // then every phone on one line, then the email.
+  const office = [
+    ...contact.address.split("\n").map((l) => l.trim()).filter(Boolean),
+    contact.phones.map((p) => p.display).filter(Boolean).join(" · "),
+    contact.email,
+  ].filter(Boolean);
+
   return (
     <footer style={{ backgroundColor: "var(--color-heritage-navy)" }}>
       <div className="mx-auto max-w-[1320px] px-6 py-16 md:px-10 md:py-20">
@@ -39,23 +32,28 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-5">
             <div className="flex items-center gap-3.5">
-              <Logo size={54} className="shrink-0" />
+              <Logo src={brand.logo} size={54} className="shrink-0" />
               <div
                 className="text-[22px] font-bold leading-[1.1] tracking-[0.04em] md:text-[26px]"
                 style={{ fontFamily: playfair, color: "#ffffff" }}
               >
-                NAMBIRAJ
-                <br />
-                LAW DYNASTY
+                {brand.name}
+                {brand.tagline ? (
+                  <>
+                    <br />
+                    {brand.tagline}
+                  </>
+                ) : null}
               </div>
             </div>
-            <p
-              className="mt-6 max-w-sm text-[15px] leading-7"
-              style={{ fontFamily: inter, color: "rgba(255,255,255,0.62)" }}
-            >
-              Continuing a 55-year legacy of legal excellence. Dedicated to the
-              vision of Mr. C. Nambiraj.
-            </p>
+            {footer.about ? (
+              <p
+                className="mt-6 max-w-sm text-[15px] leading-7"
+                style={{ fontFamily: inter, color: "rgba(255,255,255,0.62)" }}
+              >
+                {footer.about}
+              </p>
+            ) : null}
           </div>
 
           {/* Explore */}
@@ -64,17 +62,17 @@ export default function Footer() {
               className="text-[11px] uppercase tracking-[0.22em]"
               style={{ fontFamily: inter, color: "var(--color-heritage-gold)" }}
             >
-              Explore
+              {footer.exploreHeading}
             </div>
             <ul className="mt-5 space-y-3">
-              {NAV.map((item) => (
-                <li key={item.name}>
+              {nav.map((item, i) => (
+                <li key={`${item.label}-${i}`}>
                   <Link
-                    href={item.href}
+                    href={item.href || "/"}
                     className="text-[14px] transition-colors hover:text-white"
                     style={{ fontFamily: inter, color: "rgba(255,255,255,0.75)" }}
                   >
-                    {item.name}
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -87,10 +85,10 @@ export default function Footer() {
               className="text-[11px] uppercase tracking-[0.22em]"
               style={{ fontFamily: inter, color: "var(--color-heritage-gold)" }}
             >
-              Office
+              {footer.officeHeading}
             </div>
             <div className="mt-5 space-y-2">
-              {OFFICE.map((line, i) => (
+              {office.map((line, i) => (
                 <div
                   key={i}
                   className="text-[14px] leading-6"
@@ -104,35 +102,45 @@ export default function Footer() {
         </div>
 
         {/* Social — centred, symbols only */}
-        <div className="mt-14 flex items-center justify-center gap-4">
-          {SOCIAL.map((s) => (
-            <a
-              key={s.name}
-              href={s.href}
-              target={s.href.startsWith("http") ? "_blank" : undefined}
-              rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              aria-label={s.name}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors hover:bg-[var(--color-heritage-gold)] hover:text-[var(--color-heritage-navy)]"
-              style={{
-                borderColor: "rgba(255,255,255,0.2)",
-                color: "var(--color-heritage-gold)",
-              }}
-            >
-              {s.icon}
-            </a>
-          ))}
-        </div>
+        {social.length ? (
+          <div className="mt-14 flex items-center justify-center gap-4">
+            {social
+              .filter((s) => s.url && SOCIAL_ICONS[s.platform])
+              .map((s, i) => {
+                const { name, icon } = SOCIAL_ICONS[s.platform];
+                const external = s.url.startsWith("http");
+                return (
+                  <a
+                    key={`${s.platform}-${i}`}
+                    href={s.url}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                    aria-label={name}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors hover:bg-[var(--color-heritage-gold)] hover:text-[var(--color-heritage-navy)]"
+                    style={{
+                      borderColor: "rgba(255,255,255,0.2)",
+                      color: "var(--color-heritage-gold)",
+                    }}
+                  >
+                    {icon}
+                  </a>
+                );
+              })}
+          </div>
+        ) : null}
 
-        <div
-          className="mt-10 border-t pt-6 text-center text-[11px] uppercase tracking-[0.2em]"
-          style={{
-            fontFamily: inter,
-            borderColor: "rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.5)",
-          }}
-        >
-          © 2026 Nambiraj Law Dynasty LLP. All rights reserved.
-        </div>
+        {footer.copyright ? (
+          <div
+            className="mt-10 border-t pt-6 text-center text-[11px] uppercase tracking-[0.2em]"
+            style={{
+              fontFamily: inter,
+              borderColor: "rgba(255,255,255,0.12)",
+              color: "rgba(255,255,255,0.5)",
+            }}
+          >
+            {footer.copyright}
+          </div>
+        ) : null}
       </div>
     </footer>
   );
@@ -164,3 +172,18 @@ function LinkedInIcon() {
   );
 }
 
+function YouTubeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.27 5 12 5 12 5s-6.27 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.73 19 12 19 12 19s6.27 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.78zm-1.08 16.2h1.7L7.4 4.73H5.58z" />
+    </svg>
+  );
+}

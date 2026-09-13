@@ -1,16 +1,18 @@
-// Floating WhatsApp call-to-action, fixed to the bottom-right on every
-// public page. Deep-links to the firm's number with a prefilled enquiry so
-// a visitor lands in chat with the first message already typed. Pure anchor
-// + CSS — no client JS needed.
+// Floating WhatsApp call-to-action, fixed to the bottom-right. Deep-links to
+// the firm's number (Site settings → Office & contact details) with the
+// greeting prefilled, so a visitor lands in chat with the first message
+// already typed. Pure anchor + CSS — no client JS needed.
 
-const PHONE = "916369504141"; // +91 63695 04141
-const MESSAGE = "Hello, I would like to inquire about your legal services.";
-const HREF = `https://wa.me/${PHONE}?text=${encodeURIComponent(MESSAGE)}`;
+export function whatsappHref(number: string, message: string) {
+  const digits = number.replace(/\D/g, "");
+  return `https://wa.me/${digits}${message ? `?text=${encodeURIComponent(message)}` : ""}`;
+}
 
-export default function WhatsAppFab() {
+export default function WhatsAppFab({ number, message }: { number: string; message: string }) {
+  if (!number.replace(/\D/g, "")) return null;
   return (
     <a
-      href={HREF}
+      href={whatsappHref(number, message)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

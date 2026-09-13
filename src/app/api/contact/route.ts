@@ -12,7 +12,8 @@ import { contactLimiter } from "@/lib/upstash";
 // unsolicited personal details we have no plan to use is a liability rather
 // than a feature.
 
-export const runtime = "nodejs";
+// Runs on the Node.js runtime (the default — nodemailer needs it). The explicit
+// `runtime` segment config is not allowed alongside cacheComponents.
 
 // Comma-separated so more addresses can be added without a code change.
 const RECIPIENTS =

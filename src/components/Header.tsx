@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import MobileMenu from "./MobileMenu";
 import Logo from "./Logo";
 import NavDropdown from "./NavDropdown";
-import { NAV } from "@/lib/nav";
+import type { Brand, NavItem } from "@/lib/nav";
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
-export default function Header() {
+export default function Header({ nav, brand }: { nav: NavItem[]; brand: Brand }) {
   const pathname = usePathname();
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === "/" ? pathname === "/" : pathname.startsWith(href.split("#")[0]);
 
   return (
     <header
@@ -26,36 +26,38 @@ export default function Header() {
       <div className="relative mx-auto flex max-w-[1320px] items-center justify-between gap-6 px-6 py-5 md:px-10">
         {/* Wordmark */}
         <Link href="/" className="flex items-center gap-3 leading-none">
-          <Logo size={44} priority className="shrink-0" />
+          <Logo src={brand.logo} size={44} priority className="shrink-0" />
           <span>
             <span
               className="block text-[22px] font-bold tracking-[0.06em]"
               style={{ fontFamily: playfair, color: "var(--color-heritage-navy)" }}
             >
-              NAMBIRAJ
+              {brand.name}
             </span>
-            <span
-              className="mt-1 block text-[10px] tracking-[0.32em]"
-              style={{ fontFamily: inter, color: "var(--color-heritage-muted)" }}
-            >
-              LAW DYNASTY
-            </span>
+            {brand.tagline ? (
+              <span
+                className="mt-1 block text-[10px] tracking-[0.32em]"
+                style={{ fontFamily: inter, color: "var(--color-heritage-muted)" }}
+              >
+                {brand.tagline}
+              </span>
+            ) : null}
           </span>
         </Link>
 
-        {/* Nav — right-aligned beside the wordmark on lg, centred from xl */}
-        <nav className="absolute right-10 hidden items-center gap-5 lg:flex xl:right-auto xl:left-1/2 xl:-translate-x-1/2 xl:gap-7">
-          {NAV.map((item) =>
-            item.children?.length ? (
+        {/* Centre nav */}
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 lg:flex xl:gap-7">
+          {nav.map((item, i) =>
+            item.children.length ? (
               <NavDropdown
-                key={item.name}
+                key={`${item.label}-${i}`}
                 item={item}
                 active={isActive(item.href)}
               />
             ) : (
               <Link
-                key={item.name}
-                href={item.href}
+                key={`${item.label}-${i}`}
+                href={item.href || "/"}
                 className="whitespace-nowrap text-[12.5px] uppercase tracking-[0.14em] transition-colors"
                 style={{
                   fontFamily: inter,
@@ -65,13 +67,13 @@ export default function Header() {
                     : "var(--color-heritage-navy)",
                 }}
               >
-                {item.name}
+                {item.label}
               </Link>
             )
           )}
         </nav>
 
-        <MobileMenu nav={NAV} />
+        <MobileMenu nav={nav} brand={brand} />
       </div>
     </header>
   );

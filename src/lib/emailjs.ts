@@ -1,3 +1,5 @@
+import emailjs, { EmailJSResponseStatus } from "@emailjs/browser";
+
 // EmailJS delivers the /contact enquiry form straight from the visitor's
 // browser to the inbox connected to the EmailJS service below, so the site
 // needs no mail server or credentials of its own.
@@ -15,11 +17,9 @@
 
 export const EMAILJS = {
   serviceId: "service_0ipau32",
-  templateId: "",
-  publicKey: "",
+  templateId: "template_1dejj6x",
+  publicKey: "unEbfaq7hyk8_BpMX",
 };
-
-const SEND_URL = "https://api.emailjs.com/api/v1.0/email/send";
 
 /** True once all three identifiers are filled in. */
 export function emailjsConfigured(): boolean {
@@ -32,18 +32,14 @@ export function emailjsConfigured(): boolean {
  * send is rejected (bad template id, domain not allowed, rate limit, …).
  */
 export async function sendEmailjs(params: Record<string, string>): Promise<void> {
-  const res = await fetch(SEND_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      service_id: EMAILJS.serviceId,
-      template_id: EMAILJS.templateId,
-      user_id: EMAILJS.publicKey,
-      template_params: params,
-    }),
-  });
-  if (!res.ok) {
-    const reason = await res.text().catch(() => "");
-    throw new Error(reason || `EmailJS responded ${res.status}`);
+  try {
+    await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, params, {
+      publicKey: EMAILJS.publicKey,
+    });
+  } catch (err) {
+    if (err instanceof EmailJSResponseStatus) {
+      throw new Error(err.text || `EmailJS responded ${err.status}`);
+    }
+    throw err;
   }
 }

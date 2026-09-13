@@ -12,7 +12,7 @@ import {
   Inter,
 } from "next/font/google";
 import "./globals.css";
-import DisclaimerGate from "@/components/DisclaimerGate";
+import { getDocument } from "@/cms/content";
 
 // Company site (NAMBIRAJ) — heritage pairing: a high-contrast display serif
 // over a clean grotesque, matching the reference exactly.
@@ -86,12 +86,11 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title:
-    "Legalezi — Your office, every hearing, every client, under one cover.",
-  description:
-    "An advocate office, in your pocket. Cases, hearings, clients, courts, workflow, and document export — built for the Indian Bar.",
-};
+// Site-wide defaults from CMS Site settings; each page sets its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getDocument("site");
+  return { title: seo.title, description: seo.description };
+}
 
 export default function RootLayout({
   children,
@@ -123,7 +122,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-full">
         {children}
-        <DisclaimerGate />
       </body>
     </html>
   );

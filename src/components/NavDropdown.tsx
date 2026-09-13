@@ -75,7 +75,7 @@ export default function NavDropdown({
             : "var(--color-heritage-navy)",
         }}
       >
-        {item.name}
+        {item.label}
         <svg
           width="9"
           height="9"
@@ -107,7 +107,7 @@ export default function NavDropdown({
           <span aria-hidden className="absolute inset-x-0 -top-4 h-4" />
           {children.map((child) => (
             <Link
-              key={child.name}
+              key={child.label}
               href={child.href}
               onClick={() => setOpen(false)}
               className="block px-5 py-3 text-[12px] uppercase tracking-[0.13em] transition-colors hover:bg-[color-mix(in_oklch,var(--color-heritage-stone)_45%,white)]"
@@ -117,7 +117,7 @@ export default function NavDropdown({
                 color: "var(--color-heritage-navy)",
               }}
             >
-              {child.name}
+              {child.label}
             </Link>
           ))}
         </div>

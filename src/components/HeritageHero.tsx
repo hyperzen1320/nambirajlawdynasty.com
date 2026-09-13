@@ -4,13 +4,14 @@
 // band — with a scroll cue inviting the reader down into the page.
 
 import Image from "next/image";
+import { imageProps } from "@/cms/image";
 import ScrollCue from "./ScrollCue";
 
 const playfair = "var(--font-playfair), Georgia, serif";
 const inter = "var(--font-inter), system-ui, sans-serif";
 
 export type HeroPortrait = {
-  /** Path under /public, e.g. "/team/c-nambiraj.jpg". */
+  /** A path under /public or a Supabase Storage URL. */
   src: string;
   name: string;
   role?: string;
@@ -64,7 +65,7 @@ export default function HeritageHero({
           <figure className="mx-auto w-[240px] sm:w-[260px] lg:mx-0 lg:w-[240px] xl:w-[290px]">
             <div className="relative aspect-[3/4] overflow-hidden">
               <Image
-                src={portrait.src}
+                {...imageProps(portrait.src)}
                 alt={portrait.name}
                 fill
                 preload
