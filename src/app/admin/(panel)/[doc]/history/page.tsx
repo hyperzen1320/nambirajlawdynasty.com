@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import { getAdminState } from "@/cms/auth";
 import { DOCUMENTS, isDocumentId } from "@/cms/documents";
+
 import { formatWhen } from "../../format";
 import { card, linkButton } from "../../styles";
 import RestoreButton from "./RestoreButton";
@@ -12,12 +14,16 @@ type Props = {
 };
 
 /**
- * This page is request-dependent because admin authentication
- * reads the current user's session/cookies.
- *
- * Do not use request-dependent data inside generateMetadata().
- * The document ID itself is enough to generate the title.
+ * Generate the known document routes at build time.
+ * This prevents generateMetadata() from being treated as
+ * request-dependent through the dynamic [doc] parameter.
  */
+export async function generateStaticParams() {
+  return Object.keys(DOCUMENTS).map((doc) => ({
+    doc,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
