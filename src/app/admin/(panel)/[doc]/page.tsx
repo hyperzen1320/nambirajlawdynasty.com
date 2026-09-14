@@ -1,24 +1,55 @@
 import type { Metadata } from "next";
+
 import { notFound } from "next/navigation";
+
 import { getAdminState } from "@/cms/auth";
 import { DOCUMENTS, isDocumentId } from "@/cms/documents";
+
 import { sanitizeDocument } from "@/cms/sanitize";
+
 import { getSupabaseConfig } from "@/lib/supabase/config";
+
 import Editor from "./Editor";
 
-type Props = { params: Promise<{ doc: string }> };
+type Props = {
+  params: Promise<{ doc: string }>;
+};
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+/**
+ * Generate all known document routes at build time.
+ *
+ * This allows Next.js to resolve the [doc] parameter during
+ * prerendering instead of treating generateMetadata() as
+ * request-dependent.
+ */
+export async function generateStaticParams() {
+  return Object.keys(DOCUMENTS).map((doc) => ({
+    doc,
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
   const { doc } = await params;
-  return { title: isDocumentId(doc) ? DOCUMENTS[doc].label : "Not found" };
+
+  return {
+    title: isDocumentId(doc) ? DOCUMENTS[doc].label : "Not found",
+  };
 }
 
 export default async function DocumentPage({ params }: Props) {
   const { doc } = await params;
-  if (!isDocumentId(doc)) notFound();
+
+  if (!isDocumentId(doc)) {
+    notFound();
+  }
 
   const state = await getAdminState();
-  if (state.status !== "ok") return null; // the shell renders the reason
+
+  if (state.status !== "ok") {
+    return null;
+  }
 
   const { data: row, error } = await state.supabase
     .from("cms_documents")
@@ -27,7 +58,10 @@ export default async function DocumentPage({ params }: Props) {
     .maybeSingle();
 
   // An unsaved document opens on the built-in copy; the first save creates it.
-  const initialData = sanitizeDocument(doc, row ? row.data : DOCUMENTS[doc].defaults);
+  const initialData = sanitizeDocument(
+    doc,
+    row ? row.data : DOCUMENTS[doc].defaults
+  );
 
   return (
     <Editor
