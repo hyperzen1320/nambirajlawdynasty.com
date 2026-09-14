@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -12,18 +11,6 @@ import RestoreButton from "./RestoreButton";
 type Props = {
   params: Promise<{ doc: string }>;
 };
-
-export async function generateMetadata({
-  params,
-}: Props): Promise<Metadata> {
-  const { doc } = await params;
-
-  return {
-    title: isDocumentId(doc)
-      ? `History — ${DOCUMENTS[doc].label}`
-      : "Not found",
-  };
-}
 
 type Revision = {
   id: number;
