@@ -1,0 +1,387 @@
+@import "tailwindcss";
+
+@theme {
+  /* Marketing — Editorial Gravitas */
+  --color-paper: #f4ecda;
+  --color-paper-2: #ecdfc2;
+  --color-paper-3: #dfc9a0;
+  --color-ink: #0e1a2b;
+  --color-ink-2: #1b2d45;
+  --color-ink-soft: #4a5468;
+  --color-rule: #c7b894;
+  --color-brass: #b68b3c;
+  --color-brass-deep: #8e6a24;
+  --color-vermillion: #b43a2c;
+
+  /* Company site — NAMBIRAJ heritage. Exact oklch values lifted from the
+     reference so the colours match dead-on. */
+  --color-heritage-navy: oklch(21% 0.04 265);
+  --color-heritage-gold: oklch(74% 0.11 80);
+  --color-heritage-gold-deep: oklch(64% 0.11 78);
+  --color-heritage-paper: oklch(99% 0.005 80);
+  --color-heritage-stone: oklch(92% 0.01 250);
+  --color-heritage-muted: oklch(50% 0.02 250);
+  --color-heritage-border: oklch(90% 0.01 250);
+
+  /* Admin — Plex Modern */
+  --color-admin-bg: #fafaf7;
+  --color-admin-bg-sidebar: #f5f2eb;
+  --color-admin-surface: #ffffff;
+  --color-admin-border: #e8e6e0;
+  --color-admin-border-soft: #f0ede6;
+  --color-admin-fg: #0e1a1f;
+  --color-admin-fg-muted: #5a6470;
+  --color-admin-fg-soft: #8a929e;
+  --color-admin-accent: #0e7c4a;
+  --color-admin-accent-hover: #0a6238;
+  --color-admin-accent-soft: #e6f2ec;
+  --color-admin-saffron: #e5803a;
+  --color-admin-saffron-soft: #faefe3;
+  --color-admin-danger: #c9382f;
+  --color-admin-danger-soft: #fbeae7;
+  --color-admin-warning: #b7791f;
+  --color-admin-warning-soft: #fbf3e0;
+
+  /* Partner App — Midnight Counsel
+     Refreshed palette: cool navy + dual gold + cool cream. The eight
+     anchor values (navy, banner-navy, gold-dark, gold-bright, background,
+     card-white, text-light, text-muted) are mapped onto the existing
+     token families so every app surface stays on one source of truth;
+     the remaining shades are derived to harmonise. The semantic accents
+     (aqua / danger / success) are deliberately left as-is. */
+  --color-app-canvas: #f5f3ee; /* background */
+  --color-app-canvas-2: #ece8df; /* sunken cream — icon wells, table head, hovers */
+  --color-app-paper: #fcfcfd; /* card-white */
+  --color-app-paper-2: #f7f5ef;
+  --color-app-edge: #e4dfd3; /* hairline border */
+  --color-app-edge-soft: #eee9df;
+  --color-app-ink: #121d35; /* primary-navy */
+  --color-app-ink-2: #212b45; /* banner-navy */
+  --color-app-ink-3: #2c3754; /* on-dark border / active wash base */
+  --color-app-ivory: #f2f0ea; /* text-light (on dark) */
+  --color-app-ivory-soft: #e5e7eb; /* text-muted (on dark) */
+  --color-app-ivory-dim: #97a0b2; /* faint cool slate (on dark) */
+  --color-app-fg: #121d35; /* primary text on light */
+  --color-app-fg-soft: #44505f; /* secondary text on light */
+  --color-app-fg-muted: #647082; /* muted text on light (AA-safe on canvas) */
+  --color-app-copper: #ac7b33; /* gold-dark */
+  --color-app-copper-warm: #c2853a;
+  --color-app-copper-bright: #ddb074; /* light gold accent on navy */
+  --color-app-copper-deep: #8a5e1f; /* deep gold — links & labels on light */
+  --color-app-copper-text: #2a1c08; /* dark ink on gold fills */
+  --color-app-gold-bright: #d29300; /* gold-bright — Pending Dates tile */
+  --color-app-aqua: #56a0a8;
+  --color-app-aqua-soft: #d2e6e7;
+  --color-app-danger: #c14a37;
+  --color-app-danger-soft: #f6dccd;
+  --color-app-success: #6c9858;
+  --color-app-success-soft: #e0e9d5;
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-newsreader);
+  --font-mono: var(--font-jb-mono);
+  --font-sans: var(--font-newsreader);
+  --font-plex: var(--font-plex-sans);
+  --font-plex-mono: var(--font-plex-mono);
+  --font-app-display: var(--font-crimson);
+  --font-app-body: var(--font-manrope);
+  --font-app-mono: var(--font-dm-mono);
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Keep in-page anchor jumps (e.g. the product nav: Cabinet / A Day / Press /
+   Prospectus) clear of the sticky headers. */
+html {
+  scroll-padding-top: 5.5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-brass);
+  color: var(--color-paper);
+}
+
+/* Admin overrides — apply to anything inside .admin-shell */
+.admin-shell {
+  background: var(--color-admin-bg);
+  color: var(--color-admin-fg);
+  font-family: var(--font-plex-sans), system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  font-feature-settings: "ss01", "ss02", "kern", "liga";
+}
+
+.admin-shell ::selection {
+  background: var(--color-admin-accent);
+  color: #ffffff;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.85s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-0.7deg);
+  }
+}
+
+.drift {
+  animation: drift 9s ease-in-out infinite;
+}
+
+@keyframes fadeUpSm {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up-sm {
+  animation: fadeUpSm 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+
+/* Connection pills on list nodes. The base style is set inline (per-list
+   colour), and these rules add the hover bump + group-hover discovery so
+   the pills stay subtle at rest but fly to the user's eye the moment
+   they approach a list. */
+.le-connection-pill {
+  /* Inline `opacity` is the default 0.55. We push it to full opacity +
+     scale on hover, and also when ANY descendant of the list-node
+     wrapper is hovered (so hovering the card title still surfaces the
+     pills). */
+}
+.le-connection-pill:hover {
+  opacity: 1 !important;
+  transform-origin: center;
+  box-shadow:
+    0 8px 18px -4px currentColor,
+    0 0 0 6px rgba(255, 255, 255, 0.65) !important;
+  /* Slightly bigger on hover so it visibly invites a click. The
+     existing translate transform (set inline by side) is preserved by
+     React Flow's own transform handling — we just animate the hover
+     pop via filter to avoid clobbering positioning. */
+  filter: brightness(1.06);
+}
+.react-flow__node:hover .le-connection-pill,
+.react-flow__node.selected .le-connection-pill {
+  opacity: 1 !important;
+}
+
+/* Live-feed highlights. Set [data-le-pulse="task" | "list" | "edge"] on
+   any element to play a 2.5s copper glow that draws the eye without
+   blocking interaction. The animation auto-removes the attribute via JS
+   so it can fire repeatedly. */
+@keyframes le-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(197, 133, 58, 0);
+  }
+  18% {
+    box-shadow:
+      0 0 0 3px rgba(197, 133, 58, 0.95),
+      0 0 28px 10px rgba(197, 133, 58, 0.30);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(197, 133, 58, 0);
+  }
+}
+[data-le-pulse="task"],
+[data-le-pulse="list"] {
+  animation: le-pulse-ring 2.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+[data-le-pulse="edge"] .react-flow__edge-path,
+.react-flow__edge[data-le-pulse="edge"] .react-flow__edge-path {
+  animation: le-edge-pulse 1.5s cubic-bezier(0.2, 0.7, 0.1, 1) 2 both;
+}
+@keyframes le-edge-pulse {
+  0% {
+    stroke: var(--color-app-copper);
+    stroke-width: 1.5;
+  }
+  50% {
+    stroke: var(--color-app-copper);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 4px rgba(197, 133, 58, 0.55));
+  }
+  100% {
+    stroke: var(--color-app-copper);
+    stroke-width: 1.5;
+  }
+}
+
+@keyframes le-actor-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-50%) translateY(-4px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-100%) translateX(-50%);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(-100%) translateX(-50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%) translateX(-50%) translateY(-6px);
+  }
+}
+
+@keyframes le-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes le-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    background-color: rgba(197, 133, 58, 0.10);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: transparent;
+  }
+}
+
+/* Optimistic / pending entities (cards, lists waiting on the server). */
+[data-le-pending="true"] {
+  opacity: 0.72;
+  filter: saturate(0.85);
+}
+[data-le-pending="true"]::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-app-copper);
+  box-shadow: 0 0 8px var(--color-app-copper);
+  animation: le-pending-blink 1.2s ease-in-out infinite;
+}
+@keyframes le-pending-blink {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.paper-grain {
+  background-image: radial-gradient(rgba(14, 26, 43, 1) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* Partner app — Midnight Counsel — applies inside .app-shell */
+.app-shell {
+  /* Whole signed-in product is set in Bookman Old Style. Rather than touch
+     the hundreds of inline `var(--font-*)` references scattered across the
+     app, we re-point the three app font variables here — every heading,
+     body line and label then resolves to Bookman from this one place.
+     Bookman Old Style is a system face (true on Windows); the stack falls
+     back to a close serif (URW Bookman / Bookman / Georgia) elsewhere. */
+  --font-crimson: "Bookman Old Style", "URW Bookman", "Bookman",
+    "Bookman Old Style", Georgia, "Times New Roman", serif;
+  --font-manrope: "Bookman Old Style", "URW Bookman", "Bookman", Georgia,
+    "Times New Roman", serif;
+  --font-dm-mono: "Bookman Old Style", "URW Bookman", "Bookman", Georgia,
+    "Times New Roman", serif;
+
+  background: var(--color-app-canvas);
+  color: var(--color-app-fg);
+  font-family: var(--font-manrope);
+  font-feature-settings: "kern", "liga";
+}
+
+.app-shell ::selection {
+  background: var(--color-app-copper);
+  color: var(--color-app-ink);
+}
+
+/* Sidebar nav scroll region. The default chrome scrollbar (visible on
+   short / zoomed viewports) reads as a heavy grey slab against the navy
+   rail; this slims it to a barely-there gold-tinted thumb that only
+   firms up on hover. Firefox uses the standard properties; WebKit/Blink
+   the pseudo-elements. */
+.app-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(221, 176, 116, 0.28) transparent;
+}
+.app-sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.app-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.app-sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(221, 176, 116, 0.22);
+  border-radius: 999px;
+}
+.app-sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(221, 176, 116, 0.4);
+}
+
+/* Inactive rail rows get a faint wash on hover so the menu feels alive
+   without competing with the active row. The active row sets its own
+   background inline, which (inline > stylesheet) keeps priority over
+   this rule, so hovering the active item doesn't dim it. */
+.app-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.045);
+}
+
+
+/* Bar Council disclaimer gate. The overlay ships in the server HTML so it
+   paints with the first frame; the blocking script in the root layout stamps
+   this attribute before paint for visitors who already accepted, hiding the
+   gate instantly rather than after hydration. */
+html[data-disclaimer-ack="1"] [data-disclaimer-overlay] {
+  display: none !important;
+}

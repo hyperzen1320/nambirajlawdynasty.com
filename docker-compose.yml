@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────────────────────────────
+# LegalEasy — on-prem self-host stack.
+#
+#   mongo        Local database. NOT published to the host — it's only
+#                reachable inside this compose network as `mongo:27017`.
+#                Persisted to the named volume `mongo-data`. Back it up
+#                with scripts/backup-mongo.sh, never by exposing the port.
+#
+#   app          The Next.js server. Also unpublished — nothing of ours
+#                listens on the office LAN or the internet directly.
+#
+#   cloudflared  Cloudflare Tunnel. Dials OUT to Cloudflare and serves the
+#                app globally over HTTPS. No router port-forwarding, no
+#                static IP, the office firewall stays completely shut.
+#
+# Net effect: the ONLY thing that ever leaves the building is one
+# outbound tunnel connection. Mongo and the app have zero inbound
+# internet exposure. Cloudflare terminates TLS at its edge and forwards
+# to the tunnel, which reaches `app:3000` over this private network.
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    # Deliberately NO `ports:` — the database stays inside Docker.
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    # Also unpublished by design — cloudflared reaches it as `app:3000`.
+    # To poke the app directly FROM the server while debugging, uncomment:
+    # ports:
+    #   - "127.0.0.1:3000:3000"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # Token mode: the tunnel + its public hostname are configured in the
+    # Cloudflare Zero Trust dashboard; TUNNEL_TOKEN (in .env) wires this
+    # daemon to that tunnel. Point the tunnel's Public Hostname at the
+    # service URL  http://app:3000  in the dashboard.
+    command: tunnel --no-autoupdate run
+    env_file:
+      - .env
+    depends_on:
+      - app
+
+volumes:
+  mongo-data:
