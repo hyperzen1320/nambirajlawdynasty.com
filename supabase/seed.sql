@@ -177,7 +177,8 @@ values ('about', $cms${
   },
   "aboutUs": {
     "heading": "About Us",
-    "body": "Mr. C. Nambiraj, the founder of this dynasty, began his practice in 1969. After his demise in 2008, the office was succeeded by his daughter **N. Sureka**, who has developed it into a team of talented legal professionals — guided by the principles of C. Nambiraj as *“Nambiraj Law Dynasty”*.\n\nWe offer diverse legal, business and governmental backgrounds, bringing vast experience and practical knowledge to each client we represent. The firm prides itself on its commitment to knowing the law and encouraging its professionals to be at the forefront of the latest legal developments.\n\nThe firm has built a learning environment, rich with mentoring relationships and knowledge sharing through invaluable publications, holistic frameworks and access to the most exclusive resources. We invest in technology and infrastructure that allows our professionals and clients to work more efficiently, collaborate effectively and maintain standards."
+    "body": "Mr. C. Nambiraj, the founder of this dynasty, began his practice in 1969. After his demise in 2008, the office was succeeded by his daughter **N. Sureka**, who has developed it into a team of talented legal professionals — guided by the principles of C. Nambiraj as *“Nambiraj Law Dynasty”*.\n\nWe offer diverse legal, business and governmental backgrounds, bringing vast experience and practical knowledge to each client we represent. The firm prides itself on its commitment to knowing the law and encouraging its professionals to be at the forefront of the latest legal developments.\n\nThe firm has built a learning environment, rich with mentoring relationships and knowledge sharing through invaluable publications, holistic frameworks and access to the most exclusive resources. We invest in technology and infrastructure that allows our professionals and clients to work more efficiently, collaborate effectively and maintain standards.",
+    "ctaLabel": "Consult Our Dynasty"
   }
 }$cms$::jsonb)
 on conflict (id) do nothing;
@@ -380,7 +381,12 @@ values ('services', $cms${
         }
       ]
     }
-  ]
+  ],
+  "cta": {
+    "heading": "Not sure which service applies?",
+    "body": "Share a brief and we will route your matter to the right counsel within the firm.",
+    "buttonLabel": "Request a Consultation"
+  }
 }$cms$::jsonb)
 on conflict (id) do nothing;
 
@@ -537,7 +543,12 @@ values ('team', $cms${
       "focus": [],
       "photo": "/team/v-cecilia-abigail.jpg"
     }
-  ]
+  ],
+  "cta": {
+    "heading": "Work with our bench.",
+    "body": "Tell us about your matter and we’ll route it to the right counsel within the firm.",
+    "buttonLabel": "Request a Consultation"
+  }
 }$cms$::jsonb)
 on conflict (id) do nothing;
 
